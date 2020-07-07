@@ -1,0 +1,7 @@
+{
+    "standard.engine": "semistandard",
+    "standard.options": {
+        "envs": ["jest"]
+    },
+    "javascript.validate.enable": false 
+}

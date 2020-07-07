@@ -1,0 +1,11 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+	"name": "NodeJs Authentication POC",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "backend",
+	// Uncomment the next line to automatically install extensions.
+	// "extensions": [],
+	"workspaceFolder": "/home/node/app",
+	"runArgs": ["-u", "node"],
+	"shutdownAction": "stopCompose"
+}

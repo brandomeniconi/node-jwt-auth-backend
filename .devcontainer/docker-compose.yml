@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  backend:
+    image: "node:12"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ../:/home/node/app
+    command: "npm run dev"      
+    ports: 
+      - "3000:3000"
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+    - mongodb      
+  mongodb:  
+    image: "mongo"
+    restart: always
+    volumes:
+      - "./dbdata:/data/db:delegated"
+      - "./dbinit:/docker-entrypoint-initdb.d"
+    networks:
+      - backend-net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpwd      
+      MONGO_INITDB_DATABASE: jwtdemo  
+  redis:  
+    image: "redis"
+    restart: always
+    networks:
+      - backend-net
+networks:
+  frontend-net:
+  backend-net:
+secrets:
+   db_root_password:
+     file: db_root_password.txt  
