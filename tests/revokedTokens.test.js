@@ -2,27 +2,27 @@
 const { initDb } = require('../utils/init-db');
 
 const { connect, disconnect, findDocument, getCollection } = require('../lib/storage');
-const { TOKEN_COLLECTION, findToken } = require('../lib/tokens');
+const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = require('../lib/tokens');
 
 const mockTokens = require('./mocks/tokens');
 const dbName = 'test_revokedTokens';
 
 
-describe('tokens', () => {
+describe('revoked tokens', () => {
   let db;
 
   beforeAll(async () => {
     db = await connect();
-    await initDb(db);
+    await db.dropDatabase(dbName);
   });
 
   beforeEach(async () => {
     await initDb(db);
-    await getCollection(TOKEN_COLLECTION).insertMany(mockTokens);
+    await getCollection(REVOKED_TOKENS_COLLECTION).insertMany(mockTokens);
   });
 
   afterEach(async () => {
-    await db.dropDatabase('test');
+    await db.dropDatabase(dbName);
   });
 
   afterAll(async () => {
@@ -30,10 +30,21 @@ describe('tokens', () => {
   });
 
   it('should find a token by id', async () => {
-      const insertedToken = await findToken(mockTokens[0]._id);
+      const insertedToken = await findRevokedToken(mockTokens[0]._id);
       expect(insertedToken._id).toEqual(mockTokens[0]._id);
   
-      const insertedToken2 = await findToken(mockTokens[1]._id);
+      const insertedToken2 = await findRevokedToken(mockTokens[1]._id);
       expect(insertedToken2._id).toEqual(mockTokens[1]._id);
+  });
+
+  test('creation', async () => {
+
+      const _id = 'some-random-jti';
+      const expireAt = new Date();
+      const reason = 'logout';
+      
+      expect(insertRevokedToken(_id, expireAt, reason)).resolves.toMatchObject(
+        { result: { "n": 1, "ok": 1 } }
+      );
   });
 });
