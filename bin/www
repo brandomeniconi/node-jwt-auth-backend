@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
+const { connect } = require('../lib/storage');
 
 /**
  * Get port from environment and store in Express.
@@ -14,6 +15,8 @@ var http = require('http');
 
 var port = process.env.PORT || '3000';
 app.set('port', port);
+
+connect(process.env.MONGO_DB);
 
 /**
  * Server startup
