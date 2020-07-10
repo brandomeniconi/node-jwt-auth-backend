@@ -16,7 +16,7 @@ describe('db-schema', () => {
       useUnifiedTopology: true
     });
     db = await connection.db(dbName);
-    await db.dropDatabase(dbName);
+    await db.dropDatabase();
   });
 
   beforeEach(async () => {

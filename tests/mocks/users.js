@@ -1,20 +1,24 @@
+const { ObjectID } = require("mongodb");
+
 const mockUsers = [{
-  _id: 'ssSRl7MObPTpEg4HI1J7s3gfd',
+  _id: ObjectID.createFromTime(100),
   username: 'testuser',
   passwordHash: '$2b$10$X9WzetOCR2421CssSRl7MObPTpEg4HI1J7huzmS5CBNyOvJwvO2VK',
   email: 'testuser@example.com',
   firstName: 'Test',
   lastName: 'User',
-  role: 'admin'
+  role: 'admin',
+  signature: 'PTpEg4HI1J7huzmS5CBNyOvJwvO2VK'
 },
 {
-  _id: 'HI1J7huzmS5CBNyOvJwvO2VK',
+  _id: ObjectID.createFromTime(110),
   username: 'testuser2',
   passwordHash: '$2b$10$X9WzetOCR2421CssSRl7MObPTpEg4HI1J7huzmS5CBNyOvJwvO2VK',
   email: 'testuser2@example.com',
   firstName: 'Test2',
   lastName: 'User2',
-  role: 'admin'
+  role: 'admin',
+  signature: 'PTpEg4HI1J7huzmS5CBNyOvJwvO2VK'
 }];
 
 module.exports = mockUsers;
