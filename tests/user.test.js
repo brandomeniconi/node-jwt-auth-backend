@@ -1,6 +1,6 @@
 const { initDb } = require('../utils/init-db');
 
-const { connect, disconnect, findDocument, getCollection } = require('../lib/storage');
+const { connect, disconnect, getCollection } = require('../lib/storage');
 const { USER_COLLECTION, findByUsername } = require('../lib/user');
 
 const mockUsers = require('./mocks/users');
@@ -11,7 +11,7 @@ describe('Test user model functions', () => {
 
   beforeAll(async () => {
     db = await connect(dbName);
-    await db.dropDatabase(dbName);
+    await db.dropDatabase();
   });
 
   beforeEach(async () => {
@@ -20,7 +20,7 @@ describe('Test user model functions', () => {
   });
 
   afterEach(async () => {
-    await db.dropDatabase(dbName);
+    await db.dropDatabase();
   });
 
   afterAll(async () => {

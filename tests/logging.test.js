@@ -1,4 +1,4 @@
-const { log } = require("../lib/logging");
+const { log } = require('../lib/logging');
 
 describe('Test logger', () => {
   let env;
@@ -7,11 +7,11 @@ describe('Test logger', () => {
     env = process.env.NODE_ENV;
 
     // this prevents the console output killswitch in testing
-    process.env['NODE_ENV'] = 'test2';
+    process.env.NODE_ENV = 'test2';
   });
 
   afterAll(async () => {
-    process.env['NODE_ENV'] = env;
+    process.env.NODE_ENV = env;
   });
 
   it('log the message', async () => {

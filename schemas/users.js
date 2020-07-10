@@ -19,7 +19,7 @@ const validator = {
       },
       email: {
         bsonType: 'string',
-        pattern: '^.+\@.+$',
+        pattern: '^.+@.+$',
         description: 'must be a valid email and is required'
       },
       passwordHash: {

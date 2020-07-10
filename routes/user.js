@@ -4,10 +4,8 @@
 var express = require('express');
 var router = express.Router();
 
-const { jwtMiddleware, validatePassword, generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
+const { validatePassword, generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
 const user = require('../lib/user');
-const { insertDocument } = require('../lib/storage');
-const { log } = require('../lib/logging');
 
 /**
  * Authenticate the user and return the JWT token
@@ -22,7 +20,7 @@ router.post('/signin', async (req, res, next) => {
 
   const userData = await user.findByUsername(username);
 
-  if (null === userData) { 
+  if (userData === null) {
     res.status(401).json({ error: 'invalid_credentials', message: 'Your username/password is not valid' });
     return;
   }
@@ -53,7 +51,7 @@ router.post('/signin', async (req, res, next) => {
  * Password change endopint
  */
 router.post('/change-password', authenticateToken, (req, res) => {
-  const { username } = req.user;
+
 });
 
 /**
@@ -61,15 +59,15 @@ router.post('/change-password', authenticateToken, (req, res) => {
  */
 router.post('/logout', authenticateToken, (req, res) => {
   const tokenData = req.user;
- 
+
   return revokeToken(tokenData, 'logout')
-    .then(() => { 
+    .then(() => {
       res.sendStatus(200);
     })
-    .catch((err) => { 
+    .catch((err) => {
       console.error(err.message);
       res.sendStatus(500);
-    })
+    });
 });
 
 module.exports = router;

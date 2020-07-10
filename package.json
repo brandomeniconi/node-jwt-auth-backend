@@ -26,8 +26,7 @@
     "express-jwt": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "lru-cache": "^5.1.1",
-    "mongodb": "^3.5.9",
-    "morgan": "~1.9.1"
+    "mongodb": "^3.5.9"
   },
   "devDependencies": {
     "debug": "~2.6.9",
@@ -37,9 +36,9 @@
     "supertest": "^4.0.2"
   },
   "semistandard": {
-    "globals": [
-      "test",
-      "expect"
-    ]
+    "env": {
+      "node": true,
+      "jest": true
+    }    
   }
 }

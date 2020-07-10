@@ -3,10 +3,10 @@ const revokedTokensSchema = require('../schemas/revokedTokens');
 
 /**
  * Initialize database
- * 
+ *
  * @param {MongoClient} db The db instance
  */
-async function initDb(db, dbName = process.env.MONGO_DB) {
+async function initDb (db, dbName = process.env.MONGO_DB) {
   await db.dropDatabase();
 
   // Create collection

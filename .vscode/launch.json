@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm test tests/api.test.js",
+            "command": "npm test",
             "name": "Run npm test",
             "request": "launch",
             "type": "node-terminal",

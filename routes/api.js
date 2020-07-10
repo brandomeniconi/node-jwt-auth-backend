@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var router = express.Router();
-const { jwtMiddleware, authenticateToken} = require('../lib/authentication');
+const { authenticateToken } = require('../lib/authentication');
 
 router.use(authenticateToken);
 

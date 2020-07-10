@@ -2,11 +2,9 @@ const {
   validatePassword,
   hashPassword,
   revokeToken,
-  verifyToken,
   generateAccessToken,
   isTokenRevoked,
-  clearRevokedTokenCache,
-  getAuthenticationSecret
+  clearRevokedTokenCache
 } = require('../lib/authentication');
 
 const { initDb } = require('../utils/init-db');
@@ -15,7 +13,6 @@ const { connect, disconnect, findDocument } = require('../lib/storage');
 const { REVOKED_TOKENS_COLLECTION } = require('../lib/tokens');
 
 const dbName = 'test_auth';
-
 
 test('password validation', () => {
   const pwd = 'testpassword';
@@ -31,7 +28,6 @@ test('password validation', () => {
 });
 
 describe('Password handling', () => {
-
   test('password hashing', () => {
     const pwd = 'testpassword';
 
@@ -39,7 +35,6 @@ describe('Password handling', () => {
       hashPassword(pwd).then(hash => validatePassword(pwd, hash))
     ).resolves.toBe(true);
   });
-
 });
 
 describe('Token handling', () => {
@@ -72,26 +67,23 @@ describe('Token handling', () => {
           expect(result).toBe(true);
           return findDocument(REVOKED_TOKENS_COLLECTION, { _id: payload.jti });
         })
-    ).resolves.not.toBeNull()
-
+    ).resolves.not.toBeNull();
   });
 
   test('token revoke without JTI', async () => {
-
     const missingJtiToken = {
-      exp: Math.ceil((new Date()).getTime() / 1000) + 3600,
-    }
+      exp: Math.ceil((new Date()).getTime() / 1000) + 3600
+    };
 
     return expect(
       revokeToken(missingJtiToken, 'test-reason')
-    ).rejects.toThrow('Missing JTI identified')
-
+    ).rejects.toThrow('Missing JTI identified');
   });
 
   test('token revoke', async () => {
     const token = await generateAccessToken();
     const payload = jwt.decode(token);
-    
+
     clearRevokedTokenCache();
 
     return revokeToken(payload, 'test-reason')
@@ -101,7 +93,5 @@ describe('Token handling', () => {
       .then((isRevoked) => {
         return expect(isRevoked).toBe(true);
       });
-
   });
-
 });

@@ -1,13 +1,13 @@
 const { initDb } = require('../utils/init-db');
 
-const { connect, disconnect, findDocument, getCollection } = require('../lib/storage');
-const { USER_COLLECTION, findByUsername } = require('../lib/user');
+const { connect, disconnect, getCollection } = require('../lib/storage');
+const { USER_COLLECTION } = require('../lib/user');
 
 const mockUsers = require('./mocks/users');
 const dbName = 'test_api';
 
-const request = require("supertest");
-const app = require("../app");
+const request = require('supertest');
+const app = require('../app');
 
 describe('Check user authentication', () => {
   let db;
@@ -30,120 +30,111 @@ describe('Check user authentication', () => {
     await disconnect();
   });
 
-  describe("Test the api path", () => {
-
-    test("It should authenticate successfully", () => {
+  describe('Test the api path', () => {
+    test('It should authenticate successfully', () => {
       expect.assertions(4);
 
       return request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ username: 'testuser', password: 'testpassword' })
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('token');
-          
+
           return request(app)
-            .get("/api/profile")
+            .get('/api/profile')
             .set('Authorization', 'Bearer ' + response.body.token);
         })
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('status');
         });
-      
     });
-
   });
 
-  describe("Test the users path", () => {
-
-    test("It should signin successfully", () => {
-      
+  describe('Test the users path', () => {
+    test('It should signin successfully', () => {
       expect.assertions(2);
 
       return request(app)
-        .post("/user/signin")
-        .send({username: 'testuser', password: 'testpassword'})
+        .post('/user/signin')
+        .send({ username: 'testuser', password: 'testpassword' })
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('token');
-        })
+        });
     });
 
-    test("It should fail signin on wrong password", () => {
+    test('It should fail signin on wrong password', () => {
       expect.assertions(1);
 
       return request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ username: 'testuser', password: 'wrongpassword' })
         .then(response => {
           expect(response.statusCode).toBe(401);
         });
     });
 
-    test("It should fail signin on mpm existing user", () => {
+    test('It should fail signin on mpm existing user', () => {
       expect.assertions(1);
 
       return request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ username: 'nonexistent', password: 'testpassword' })
         .then(response => {
           return expect(response.statusCode).toBe(401);
         });
-    });    
+    });
 
-    test("It should fail signin on missing password", () => {
+    test('It should fail signin on missing password', () => {
       expect.assertions(1);
 
       return request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ username: 'testuser' })
         .then(response => {
           return expect(response.statusCode).toBe(400);
         });
-    });   
+    });
 
-    test("It should fail signin on missing username", () => {
+    test('It should fail signin on missing username', () => {
       expect.assertions(1);
 
       request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ password: 'testpassword' })
         .then(response => {
           return expect(response.statusCode).toBe(400);
         });
     });
 
-    test("It should logout and revoke the token", () => {
+    test('It should logout and revoke the token', () => {
       let token;
       expect.assertions(3);
 
       return request(app)
-        .post("/user/signin")
+        .post('/user/signin')
         .send({ username: 'testuser', password: 'testpassword' })
         .then(response => {
-          
           expect(response.statusCode).toEqual(200);
 
           token = response.body.token;
 
           return request(app)
-            .post("/user/logout")
+            .post('/user/logout')
             .set('Authorization', 'Bearer ' + token);
         })
         .then(response => {
           expect(response.statusCode).toEqual(200);
 
           return request(app)
-            .get("/api/profile")
+            .get('/api/profile')
             .set('Authorization', 'Bearer ' + token);
         })
         .then(response => {
           expect(response.statusCode).toEqual(401);
         });
     });
-    
-
   });
-
 });
