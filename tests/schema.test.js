@@ -37,7 +37,7 @@ describe('db-schema', () => {
     const usersCollection = db.collection('users');
     const mockUser = mockUsers[0];
 
-    expect(usersCollection.insertOne(mockUser)).resolves.toMatchObject(
+    return expect(usersCollection.insertOne(mockUser)).resolves.toMatchObject(
       { result: { "n": 1, "ok": 1 } }
     );
   });
@@ -54,7 +54,7 @@ describe('db-schema', () => {
 
     const mockToken = mockTokens[0];
 
-    expect(revokedTokens.insertOne(mockToken)).resolves.toMatchObject({
+    return expect(revokedTokens.insertOne(mockToken)).resolves.toMatchObject({
         result: {"n": 1, "ok": 1}
       }
     );

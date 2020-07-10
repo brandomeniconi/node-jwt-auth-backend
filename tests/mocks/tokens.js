@@ -1,3 +1,5 @@
+const { TOKEN_TTL_SECONDS } = require("../../lib/authentication");
+
 const mockTokens = [
     {
         _id: 'sSRl7MObPTpEg4HI1J7huzmS5',
@@ -7,7 +9,7 @@ const mockTokens = [
     {
         _id: 'HI1J7huzmS5CBNyOvJwvO2VK',
         reason: 'Manually invalidated',
-        expireAt: new Date('July 08, 2020 19:00:00')
+        expireAt: new Date(new Date().getTime() + TOKEN_TTL_SECONDS*1000)
     }
 ];
   

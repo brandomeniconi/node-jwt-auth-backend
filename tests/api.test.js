@@ -14,7 +14,7 @@ describe('Check user authentication', () => {
 
   beforeAll(async () => {
     db = await connect(dbName);
-    await db.dropDatabase(dbName);
+    await db.dropDatabase();
   });
 
   beforeEach(async () => {
@@ -23,7 +23,7 @@ describe('Check user authentication', () => {
   });
 
   afterEach(async () => {
-    await db.dropDatabase(dbName);
+    await db.dropDatabase();
   });
 
   afterAll(async () => {
@@ -32,78 +32,114 @@ describe('Check user authentication', () => {
 
   describe("Test the api path", () => {
 
-    test("It should authenticate successfully", async done => {
-      request(app)
+    test("It should authenticate successfully", () => {
+      expect.assertions(4);
+
+      return request(app)
         .post("/user/signin")
-        .send({username: 'testuser', password: 'testpassword'})
+        .send({ username: 'testuser', password: 'testpassword' })
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('token');
           
           return request(app)
-          .get("/api/profile")
-          .set('Authorization', 'Bearer ' + response.body.token)
-          .then(response => {
-            expect(response.statusCode).toBe(200);
-            expect(response.body).toHaveProperty('status');
-            done();
-          });
-
-        }).catch(done.fail);
+            .get("/api/profile")
+            .set('Authorization', 'Bearer ' + response.body.token);
+        })
+        .then(response => {
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toHaveProperty('status');
+        });
+      
     });
 
   });
 
   describe("Test the users path", () => {
 
-    test("It should signin successfully", async  done => {
-      request(app)
+    test("It should signin successfully", () => {
+      
+      expect.assertions(2);
+
+      return request(app)
         .post("/user/signin")
         .send({username: 'testuser', password: 'testpassword'})
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('token');
-          done();
+        })
+    });
+
+    test("It should fail signin on wrong password", () => {
+      expect.assertions(1);
+
+      return request(app)
+        .post("/user/signin")
+        .send({ username: 'testuser', password: 'wrongpassword' })
+        .then(response => {
+          expect(response.statusCode).toBe(401);
         });
     });
 
-    test("It should fail signin on wrong password", async done => {
-      request(app)
-        .post("/user/signin")
-        .send({username: 'testuser', password: 'wrongpassword'})
-        .then(response => {
-          expect(response.statusCode).toBe(401);
-          done();
-        });
-    });
+    test("It should fail signin on mpm existing user", () => {
+      expect.assertions(1);
 
-    test("It should fail signin on mpm existing user", async done => {
-      request(app)
+      return request(app)
         .post("/user/signin")
-        .send({username: 'nonexistent', password: 'testpassword'})
+        .send({ username: 'nonexistent', password: 'testpassword' })
         .then(response => {
-          expect(response.statusCode).toBe(401);
-          done();
+          return expect(response.statusCode).toBe(401);
         });
     });    
 
-    test("It should fail signin on missing password", async  done => {
-      request(app)
+    test("It should fail signin on missing password", () => {
+      expect.assertions(1);
+
+      return request(app)
         .post("/user/signin")
-        .send({username: 'testuser'})
+        .send({ username: 'testuser' })
         .then(response => {
-          expect(response.statusCode).toBe(400);
-          done();
+          return expect(response.statusCode).toBe(400);
         });
     });   
 
-    test("It should fail signin on missing username", async  done => {
+    test("It should fail signin on missing username", () => {
+      expect.assertions(1);
+
       request(app)
         .post("/user/signin")
-        .send({password: 'testpassword'})
+        .send({ password: 'testpassword' })
         .then(response => {
-          expect(response.statusCode).toBe(400);
-          done();
+          return expect(response.statusCode).toBe(400);
+        });
+    });
+
+    test("It should logout and revoke the token", () => {
+      let token;
+      expect.assertions(3);
+
+      return request(app)
+        .post("/user/signin")
+        .send({ username: 'testuser', password: 'testpassword' })
+        .then(response => {
+          
+          expect(response.statusCode).toEqual(200);
+
+          token = response.body.token;
+
+          return request(app)
+            .post("/user/logout")
+            .set('Authorization', 'Bearer ' + token);
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+
+          return request(app)
+            .get("/api/profile")
+            .set('Authorization', 'Bearer ' + token);
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(401);
         });
     });
     

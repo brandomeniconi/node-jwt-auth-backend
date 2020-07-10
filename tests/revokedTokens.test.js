@@ -5,6 +5,7 @@ const { connect, disconnect, findDocument, getCollection } = require('../lib/sto
 const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = require('../lib/tokens');
 
 const mockTokens = require('./mocks/tokens');
+const { TOKEN_TTL_SECONDS } = require('../lib/authentication');
 const dbName = 'test_revokedTokens';
 
 
@@ -37,14 +38,24 @@ describe('revoked tokens', () => {
       expect(insertedToken2._id).toEqual(mockTokens[1]._id);
   });
 
-  test('creation', async () => {
-
-      const _id = 'some-random-jti';
-      const expireAt = new Date();
-      const reason = 'logout';
+  test('creation', () => {
+    
+    const newToken = {
+      _id: 'some-random-jti',
+      expireAt: new Date( new Date().getTime() + (TOKEN_TTL_SECONDS * 1000) ),
+      reason: 'logout'
+    }
       
-      expect(insertRevokedToken(_id, expireAt, reason)).resolves.toMatchObject(
-        { result: { "n": 1, "ok": 1 } }
-      );
+    return insertRevokedToken(newToken._id, newToken.expireAt, newToken.reason)
+      .then(response => {
+        expect(response).toMatchObject(
+          { result: { "n": 1, "ok": 1 } }
+        );
+        return findRevokedToken(newToken._id);
+      })
+      .then(result => {
+        expect(result).not.toBeNull();
+        expect(result).toMatchObject( newToken );        
+      });
   });
 });

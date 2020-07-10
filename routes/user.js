@@ -37,11 +37,9 @@ router.post('/signin', async (req, res, next) => {
   try {
     const tokenPayload = {
       sub: userData.uid,
-      iss: 'https://example.com/',
-      aud: ['https://example.com/', 'https://shop.example.com/'],
       username: userData.username,
       email: userData.email,
-      role: userData.email
+      role: userData.role
     };
     const token = generateAccessToken(tokenPayload);
     res.json({ token });
@@ -55,8 +53,23 @@ router.post('/signin', async (req, res, next) => {
  * Password change endopint
  */
 router.post('/change-password', authenticateToken, (req, res) => {
-  const { username } = req;
+  const { username } = req.user;
+});
 
+/**
+ * Password change endopint
+ */
+router.post('/logout', authenticateToken, (req, res) => {
+  const tokenData = req.user;
+ 
+  return revokeToken(tokenData, 'logout')
+    .then(() => { 
+      res.sendStatus(200);
+    })
+    .catch((err) => { 
+      console.error(err.message);
+      res.sendStatus(500);
+    })
 });
 
 module.exports = router;
