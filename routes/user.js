@@ -4,11 +4,13 @@
 var express = require('express');
 var router = express.Router();
 
-const { jwtMiddleware, validatePassword, generateAccessToken } = require('../lib/authentication');
+const { jwtMiddleware, validatePassword, generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
 const user = require('../lib/user');
+const { insertDocument } = require('../lib/storage');
+const { log } = require('../lib/logging');
 
 /**
- *
+ * Authenticate the user and return the JWT token
  */
 router.post('/signin', async (req, res, next) => {
   const { username, password } = req.body;
@@ -52,7 +54,7 @@ router.post('/signin', async (req, res, next) => {
 /**
  * Password change endopint
  */
-router.post('/change-password', jwtMiddleware, (req, res) => {
+router.post('/change-password', authenticateToken, (req, res) => {
   const { username } = req;
 
 });

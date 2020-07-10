@@ -9,7 +9,7 @@ const dbName = 'test_api';
 const request = require("supertest");
 const app = require("../app");
 
-describe('users', () => {
+describe('Check user authentication', () => {
   let db;
 
   beforeAll(async () => {
@@ -34,7 +34,7 @@ describe('users', () => {
 
     test("It should authenticate successfully", async done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({username: 'testuser', password: 'testpassword'})
         .then(response => {
           expect(response.statusCode).toBe(200);
@@ -58,7 +58,7 @@ describe('users', () => {
 
     test("It should signin successfully", async  done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({username: 'testuser', password: 'testpassword'})
         .then(response => {
           expect(response.statusCode).toBe(200);
@@ -69,7 +69,7 @@ describe('users', () => {
 
     test("It should fail signin on wrong password", async done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({username: 'testuser', password: 'wrongpassword'})
         .then(response => {
           expect(response.statusCode).toBe(401);
@@ -79,7 +79,7 @@ describe('users', () => {
 
     test("It should fail signin on mpm existing user", async done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({username: 'nonexistent', password: 'testpassword'})
         .then(response => {
           expect(response.statusCode).toBe(401);
@@ -89,7 +89,7 @@ describe('users', () => {
 
     test("It should fail signin on missing password", async  done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({username: 'testuser'})
         .then(response => {
           expect(response.statusCode).toBe(400);
@@ -99,7 +99,7 @@ describe('users', () => {
 
     test("It should fail signin on missing username", async  done => {
       request(app)
-        .post("/users/signin")
+        .post("/user/signin")
         .send({password: 'testpassword'})
         .then(response => {
           expect(response.statusCode).toBe(400);

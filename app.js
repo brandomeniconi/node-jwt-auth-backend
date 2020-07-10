@@ -6,7 +6,7 @@ const logger = require('morgan');
 
 // Routes
 const apiRouter = require('./routes/api');
-const usersRouter = require('./routes/users');
+const userRouter = require('./routes/user');
 const { connect } = require('./lib/storage');
 
 // Init express
@@ -23,6 +23,6 @@ dotenv.config();
 connect();
 
 app.use('/api', apiRouter);
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
 
 module.exports = app;

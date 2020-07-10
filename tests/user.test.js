@@ -6,7 +6,7 @@ const { USER_COLLECTION, findByUsername } = require('../lib/user');
 const mockUsers = require('./mocks/users');
 const dbName = 'test_users';
 
-describe('users', () => {
+describe('Test user model functions', () => {
   let db;
 
   beforeAll(async () => {
