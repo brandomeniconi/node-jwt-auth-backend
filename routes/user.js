@@ -4,8 +4,9 @@
 var express = require('express');
 var router = express.Router();
 
-const { validatePassword, generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
+const { generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
 const { validateUser, createUserSession, findUser, insertUser, updateUser, findByUsername } = require('../lib/user');
+const { validatePassword } = require('../lib/hashing');
 
 /**
  * Authenticate the user and return the JWT token

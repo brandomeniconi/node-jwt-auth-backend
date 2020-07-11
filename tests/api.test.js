@@ -163,5 +163,39 @@ describe('Check APIs', () => {
           return expect(response.statusCode).toEqual(200);
         });
     });
+
+    test('It should change password and invalidate all other tokens', () => {
+      let token;
+      let secondToken;
+      expect.assertions(4);
+
+      return signIn()
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+
+          token = response.body.token;
+
+          return signIn();
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+          secondToken = response.body.token;
+
+          return request(app)
+            .post('/user/change-password')
+            .send({ previousPassword: 'testpassword', password: 'newtestpassword' })
+            .set('Authorization', 'Bearer ' + token);
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+
+          return request(app)
+            .get('/api/profile')
+            .set('Authorization', 'Bearer ' + secondToken);
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(401);
+        });
+    });
   });
 });

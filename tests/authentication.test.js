@@ -1,6 +1,4 @@
 const {
-  validatePassword,
-  hashPassword,
   revokeToken,
   generateAccessToken,
   isTokenRevoked,
@@ -10,7 +8,8 @@ const {
 const { initDb } = require('../utils/init-db');
 const jwt = require('jsonwebtoken');
 const { connect, disconnect, getDocument } = require('../lib/storage');
-const { REVOKED_TOKENS_COLLECTION } = require('../lib/tokens');
+const { REVOKED_TOKENS_COLLECTION } = require('../lib/revokedTokens');
+const { validatePassword, hashPassword } = require('../lib/hashing');
 
 const dbName = 'test_auth';
 
