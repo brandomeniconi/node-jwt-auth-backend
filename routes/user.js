@@ -5,8 +5,7 @@ var express = require('express');
 var router = express.Router();
 
 const { validatePassword, generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
-const user = require('../lib/user');
-const { validateUser, createUserSession, findUser, insertUser } = require('../lib/user');
+const { validateUser, createUserSession, findUser, insertUser, updateUser, findByUsername } = require('../lib/user');
 
 /**
  * Authenticate the user and return the JWT token
@@ -19,7 +18,7 @@ router.post('/signin', async (req, res, next) => {
     return;
   }
 
-  const userData = await user.findByUsername(username);
+  const userData = await findByUsername(username);
 
   if (userData === null) {
     res.status(401).json({ error: 'invalid_credentials', message: 'Your username/password is not valid' });
@@ -65,13 +64,13 @@ router.post('/signup', async (req, res, next) => {
   } catch (err) {
     console.error('CANNOT INSER USER', err.code, err.message);
 
-    if ( err.code === 11000 ) {
+    if (err.code === 11000) {
       return res.status(400).json({ error: 'already_exists', message: 'An user with that username or email alreasy exists' });
     }
 
-    if ( err.code === 121 ) {
+    if (err.code === 121) {
       return res.status(400).json({ error: 'invalid_parameters', message: 'Some of the data provided is not valid' });
-    }    
+    }
 
     return res.status(400).json({ error: 'fatal_error', message: 'Could not create user, please try later' });
   }
@@ -88,8 +87,39 @@ router.post('/signup', async (req, res, next) => {
 /**
  * Password change endopint
  */
-router.post('/change-password', authenticateToken, (req, res) => {
+router.post('/change-password', authenticateToken, async (req, res) => {
+  const userId = req.user.sub;
+  const { password, previousPassword } = req.body;
 
+  if (!password || !previousPassword) {
+    return res.status(400).json({ error: 'invalid_arguments', message: 'You must specify previous and new password' });
+  }
+
+  // Validate old password
+  const userData = await findUser(userId);
+
+  if (userData === null) {
+    return res.status(401).json({ error: 'invalid_credentials', message: 'Your username/password is not valid' });
+  }
+
+  const passwordValid = await validatePassword(previousPassword, userData.passwordHash);
+
+  if (!passwordValid) {
+    return res.status(403).json({ error: 'invalid_credentials', message: 'Your old password is not valid' });
+  }
+
+  return updateUser(userId, { password })
+    .then(() => revokeToken(req.user, 'logout'))
+    .then(() => findUser(userId))
+    .then((userData) => {
+      const tokenPayload = createUserSession(userData);
+      const token = generateAccessToken(tokenPayload);
+      res.status(200).send({ token });
+    })
+    .catch((err) => {
+      console.error(err.message);
+      res.sendStatus(500);
+    });
 });
 
 /**

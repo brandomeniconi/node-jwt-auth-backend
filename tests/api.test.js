@@ -9,7 +9,7 @@ const dbName = 'test_api';
 const request = require('supertest');
 const app = require('../app');
 
-describe('Check user authentication', () => {
+describe('Check APIs', () => {
   let db;
 
   beforeAll(async () => {
@@ -30,17 +30,18 @@ describe('Check user authentication', () => {
     await disconnect();
   });
 
+  function signIn (credentials = { username: 'testuser', password: 'testpassword' }) {
+    return request(app)
+      .post('/user/signin')
+      .send(credentials);
+  }
+
   describe('Test the api path', () => {
     test('It should authenticate successfully', () => {
-      expect.assertions(4);
+      expect.assertions(2);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'testuser', password: 'testpassword' })
+      return signIn()
         .then(response => {
-          expect(response.statusCode).toBe(200);
-          expect(response.body).toHaveProperty('token');
-
           return request(app)
             .get('/api/profile')
             .set('Authorization', 'Bearer ' + response.body.token);
@@ -56,9 +57,7 @@ describe('Check user authentication', () => {
     test('It should signin successfully', () => {
       expect.assertions(2);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'testuser', password: 'testpassword' })
+      return signIn()
         .then(response => {
           expect(response.statusCode).toBe(200);
           expect(response.body).toHaveProperty('token');
@@ -68,20 +67,16 @@ describe('Check user authentication', () => {
     test('It should fail signin on wrong password', () => {
       expect.assertions(1);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'testuser', password: 'wrongpassword' })
+      return signIn({ username: 'testuser', password: 'wrongpassword' })
         .then(response => {
           expect(response.statusCode).toBe(401);
         });
     });
 
-    test('It should fail signin on mpm existing user', () => {
+    test('It should fail signin on non existing user', () => {
       expect.assertions(1);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'nonexistent', password: 'testpassword' })
+      return signIn({ username: 'nonexistent', password: 'testpassword' })
         .then(response => {
           return expect(response.statusCode).toBe(401);
         });
@@ -90,9 +85,7 @@ describe('Check user authentication', () => {
     test('It should fail signin on missing password', () => {
       expect.assertions(1);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'testuser' })
+      return signIn({ username: 'testuser' })
         .then(response => {
           return expect(response.statusCode).toBe(400);
         });
@@ -101,9 +94,7 @@ describe('Check user authentication', () => {
     test('It should fail signin on missing username', () => {
       expect.assertions(1);
 
-      request(app)
-        .post('/user/signin')
-        .send({ password: 'testpassword' })
+      return signIn({ password: 'testpassword' })
         .then(response => {
           return expect(response.statusCode).toBe(400);
         });
@@ -113,9 +104,7 @@ describe('Check user authentication', () => {
       let token;
       expect.assertions(3);
 
-      return request(app)
-        .post('/user/signin')
-        .send({ username: 'testuser', password: 'testpassword' })
+      return signIn()
         .then(response => {
           expect(response.statusCode).toEqual(200);
 
@@ -133,7 +122,45 @@ describe('Check user authentication', () => {
             .set('Authorization', 'Bearer ' + token);
         })
         .then(response => {
+          return expect(response.statusCode).toEqual(401);
+        });
+    });
+
+    test('It should change password and revoke previous token', () => {
+      let token;
+      expect.assertions(5);
+
+      return signIn()
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+
+          token = response.body.token;
+
+          return request(app)
+            .post('/user/change-password')
+            .send({ previousPassword: 'testpassword', password: 'newtestpassword' })
+            .set('Authorization', 'Bearer ' + token);
+        })
+        .then(response => {
+          expect(response.statusCode).toEqual(200);
+          expect(response.body.token).toBeDefined();
+
+          const oldToken = token;
+          token = response.body.token;
+
+          return request(app)
+            .get('/api/profile')
+            .set('Authorization', 'Bearer ' + oldToken);
+        })
+        .then(response => {
           expect(response.statusCode).toEqual(401);
+
+          return request(app)
+            .get('/api/profile')
+            .set('Authorization', 'Bearer ' + token);
+        })
+        .then(response => {
+          return expect(response.statusCode).toEqual(200);
         });
     });
   });

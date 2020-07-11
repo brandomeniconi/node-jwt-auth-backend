@@ -82,6 +82,61 @@ describe('Test user model functions', () => {
       });
   });
 
+  it('should update a user correctly', async () => {
+    expect.assertions(2);
+
+    const mockUser = Object.assign({ password: 'testuser' }, mockUsers[0]);
+    delete mockUser.passwordHash;
+
+    return insertUser(mockUser)
+      .then((result) => {
+        expect(result).toMatchObject(successfulInsertion);
+        return updateUser(result.insertedId, { firstName: 'Change' });
+      })
+      .then((update) => {
+        return getCollection(USER_COLLECTION).findOne({ _id: mockUser._id });
+      })
+      .then((result) => {
+        return expect(result.firstName).toBe('Change');
+      });
+  });
+
+  it('should update user signature on password change', async () => {
+    expect.assertions(2);
+    await getCollection(USER_COLLECTION).insertMany(mockUsers);
+
+    const mockUserId = mockUsers[0]._id.toHexString();
+    const mockUserSignature = mockUsers[0].signature;
+
+    return updateUser(mockUserId, { password: 'newtestpassword' })
+      .then((result) => {
+        expect(result).toMatchObject(successfulInsertion);
+
+        return getCollection(USER_COLLECTION).findOne({ _id: mockUsers[0]._id });
+      })
+      .then((result) => {
+        return expect(result.signature).not.toEqual(mockUserSignature);
+      });
+  });
+
+  it('should update user signature on email change', async () => {
+    expect.assertions(2);
+    await getCollection(USER_COLLECTION).insertMany(mockUsers);
+
+    const mockUserId = mockUsers[0]._id.toHexString();
+    const mockUserSignature = mockUsers[0].signature;
+
+    return updateUser(mockUserId, { email: 'new@email.it' })
+      .then((result) => {
+        expect(result).toMatchObject(successfulInsertion);
+
+        return getCollection(USER_COLLECTION).findOne({ _id: mockUsers[0]._id });
+      })
+      .then((result) => {
+        return expect(result.signature).not.toEqual(mockUserSignature);
+      });
+  });
+
   it('should validate fields schema', async () => {
     const mockUser = Object.assign({ password: 'testuser' }, mockUsers[1]);
     delete mockUser.passwordHash;
