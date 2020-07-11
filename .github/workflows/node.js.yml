@@ -24,4 +24,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: docker-composer up .devcontainer/docker-compose.yaml
+    - run: npm i
     - run: npm test
