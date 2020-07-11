@@ -2,7 +2,7 @@
 const { initDb } = require('../utils/init-db');
 
 const { connect, disconnect, getCollection } = require('../lib/storage');
-const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = require('../lib/tokens');
+const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = require('../lib/revokedTokens');
 
 const mockTokens = require('./mocks/tokens');
 const { TOKEN_TTL_SECONDS, TOKEN_JTI_BYTLE_LENGTH } = require('../lib/authentication');
