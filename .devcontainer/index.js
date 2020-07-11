@@ -38,8 +38,8 @@ app.post('/user/signin', async (req, res, next) => {
   try {
     const tokenPayload = {
       sub: userData.uid,
-      iss: 'https://treedom.com',
-      aud: ['https://treedom.com/shop', 'https://treedom.com/app'],
+      iss: 'https://example.com',
+      aud: ['https://example.com/shop', 'https://example.com/app'],
       username: userData.username,
       email: userData.email,
       role: userData.email
