@@ -1,7 +1,6 @@
-# JWT Authentication Demo
+# NodeJS JWT Authentication App
 
-This is a sample application to showcase a JWT persistent authenitication.
-
+This is a sample application to showcase a JWT persistent authentication.
 
 ## Development 
 
