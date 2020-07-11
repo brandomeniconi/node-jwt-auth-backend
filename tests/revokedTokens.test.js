@@ -6,7 +6,7 @@ const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = requ
 
 const mockTokens = require('./mocks/tokens');
 const { TOKEN_TTL_SECONDS, TOKEN_JTI_BYTLE_LENGTH } = require('../lib/authentication');
-const { randomHash } = require('../utils/hashing');
+const { randomHash } = require('../lib/hashing');
 const dbName = 'test_revokedTokens';
 
 describe('revoked tokens', () => {

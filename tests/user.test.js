@@ -74,8 +74,8 @@ describe('Test user model functions', () => {
       return getCollection(USER_COLLECTION).findOne({ _id: mockUser._id });
     })
       .then((insertedUser) => {
-        expect(insertedUser).toHaveProperty('signature');
-        expect(insertedUser.signature.length).toBeGreaterThan(20);
+        expect(insertedUser).toHaveProperty('fingerprint');
+        expect(insertedUser.fingerprint.length).toBeGreaterThan(20);
         expect(insertedUser).toHaveProperty('passwordHash');
         expect(insertedUser.passwordHash.length).toBeGreaterThan(20);
         expect(insertedUser).not.toHaveProperty('password');
@@ -101,12 +101,12 @@ describe('Test user model functions', () => {
       });
   });
 
-  it('should update user signature on password change', async () => {
+  it('should update user fingerprint on password change', async () => {
     expect.assertions(2);
     await getCollection(USER_COLLECTION).insertMany(mockUsers);
 
     const mockUserId = mockUsers[0]._id.toHexString();
-    const mockUserSignature = mockUsers[0].signature;
+    const mockUserfingerprint = mockUsers[0].fingerprint;
 
     return updateUser(mockUserId, { password: 'newtestpassword' })
       .then((result) => {
@@ -115,16 +115,16 @@ describe('Test user model functions', () => {
         return getCollection(USER_COLLECTION).findOne({ _id: mockUsers[0]._id });
       })
       .then((result) => {
-        return expect(result.signature).not.toEqual(mockUserSignature);
+        return expect(result.fingerprint).not.toEqual(mockUserfingerprint);
       });
   });
 
-  it('should update user signature on email change', async () => {
+  it('should update user fingerprint on email change', async () => {
     expect.assertions(2);
     await getCollection(USER_COLLECTION).insertMany(mockUsers);
 
     const mockUserId = mockUsers[0]._id.toHexString();
-    const mockUserSignature = mockUsers[0].signature;
+    const mockUserfingerprint = mockUsers[0].fingerprint;
 
     return updateUser(mockUserId, { email: 'new@email.it' })
       .then((result) => {
@@ -133,7 +133,7 @@ describe('Test user model functions', () => {
         return getCollection(USER_COLLECTION).findOne({ _id: mockUsers[0]._id });
       })
       .then((result) => {
-        return expect(result.signature).not.toEqual(mockUserSignature);
+        return expect(result.fingerprint).not.toEqual(mockUserfingerprint);
       });
   });
 
@@ -162,7 +162,7 @@ describe('Test user model functions', () => {
         return expect(createUserSession(resultUser)).toEqual({
           sub: resultUser._id,
           role: resultUser.role,
-          signature: resultUser.signature
+          fingerprint: resultUser.fingerprint
         });
       });
   });

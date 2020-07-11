@@ -8,7 +8,7 @@ const mockUsers = [{
   firstName: 'Test',
   lastName: 'User',
   role: 'admin',
-  signature: 'PTpEg4HI1J7huzmS5CBNyOvJwvO2VK'
+  fingerprint: 'PTpEg4HI1J7huzmS5CBNyOvJwvO2VK'
 },
 {
   _id: new ObjectID('bbbbbbbbbbbbbbbbbbbbbbbb'),
@@ -18,7 +18,7 @@ const mockUsers = [{
   firstName: 'Test2',
   lastName: 'User2',
   role: 'admin',
-  signature: 'OCR2421CssSRl7MObPTpEg4HIDiuS0'
+  fingerprint: 'OCR2421CssSRl7MObPTpEg4HIDiuS0'
 }];
 
 module.exports = mockUsers;

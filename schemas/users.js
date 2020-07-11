@@ -1,7 +1,7 @@
 const validator = {
   $jsonSchema: {
     bsonType: 'object',
-    required: ['username', 'firstName', 'lastName', 'email', 'role', 'passwordHash', 'signature'],
+    required: ['username', 'firstName', 'lastName', 'email', 'role', 'passwordHash', 'fingerprint'],
     additionalProperties: false,
     properties: {
       _id: {
@@ -36,7 +36,7 @@ const validator = {
         bsonType: 'string',
         description: 'must be a string and is required'
       },
-      signature: {
+      fingerprint: {
         bsonType: 'string',
         description: 'must be a string and is required'
       },
