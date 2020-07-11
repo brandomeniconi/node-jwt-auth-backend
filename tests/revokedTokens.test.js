@@ -5,7 +5,8 @@ const { connect, disconnect, getCollection } = require('../lib/storage');
 const { REVOKED_TOKENS_COLLECTION, findRevokedToken, insertRevokedToken } = require('../lib/tokens');
 
 const mockTokens = require('./mocks/tokens');
-const { TOKEN_TTL_SECONDS } = require('../lib/authentication');
+const { TOKEN_TTL_SECONDS, TOKEN_JTI_BYTLE_LENGTH } = require('../lib/authentication');
+const { randomHash } = require('../utils/hashing');
 const dbName = 'test_revokedTokens';
 
 describe('revoked tokens', () => {
@@ -31,15 +32,15 @@ describe('revoked tokens', () => {
 
   it('should find a token by id', async () => {
     const insertedToken = await findRevokedToken(mockTokens[0]._id);
-    expect(insertedToken._id).toEqual(mockTokens[0]._id);
+    expect(insertedToken._id).toEqual(mockTokens[0]._id.toHexString());
 
     const insertedToken2 = await findRevokedToken(mockTokens[1]._id);
-    expect(insertedToken2._id).toEqual(mockTokens[1]._id);
+    expect(insertedToken2._id).toEqual(mockTokens[1]._id.toHexString());
   });
 
   test('creation', () => {
     const newToken = {
-      _id: 'some-random-jti',
+      _id: randomHash(TOKEN_JTI_BYTLE_LENGTH),
       expireAt: new Date(new Date().getTime() + (TOKEN_TTL_SECONDS * 1000)),
       reason: 'logout'
     };

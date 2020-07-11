@@ -5,8 +5,8 @@ const validator = {
     additionalProperties: false,
     properties: {
       _id: {
-        bsonType: 'objectId',
-      },   
+        bsonType: 'objectId'
+      },
       username: {
         bsonType: 'string',
         description: 'must be a string and is required',

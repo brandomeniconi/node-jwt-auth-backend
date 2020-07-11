@@ -2,7 +2,11 @@ const validator = {
   $jsonSchema: {
     bsonType: 'object',
     required: ['expireAt'],
+    additionalProperties: false,
     properties: {
+      _id: {
+        bsonType: 'objectId'
+      },
       reason: {
         bsonType: 'string',
         description: 'must be a string'

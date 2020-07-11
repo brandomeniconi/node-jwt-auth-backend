@@ -9,7 +9,7 @@ const {
 
 const { initDb } = require('../utils/init-db');
 const jwt = require('jsonwebtoken');
-const { connect, disconnect, findDocument } = require('../lib/storage');
+const { connect, disconnect, getDocument } = require('../lib/storage');
 const { REVOKED_TOKENS_COLLECTION } = require('../lib/tokens');
 
 const dbName = 'test_auth';
@@ -65,7 +65,7 @@ describe('Token handling', () => {
       revokeToken(payload, 'test-reason')
         .then((result) => {
           expect(result).toBe(true);
-          return findDocument(REVOKED_TOKENS_COLLECTION, { _id: payload.jti });
+          return getDocument(REVOKED_TOKENS_COLLECTION, payload.jti);
         })
     ).resolves.not.toBeNull();
   });

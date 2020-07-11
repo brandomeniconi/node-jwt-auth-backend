@@ -1,15 +1,15 @@
 const { TOKEN_TTL_SECONDS } = require('../../lib/authentication');
-const { ObjectID } = require("mongodb");
+const { ObjectID } = require('mongodb');
 
 const mockTokens = [
   {
-    _id: ObjectID.createFromTime(110),
-    reason: 'Changed password',
+    _id: new ObjectID('477b46a49060df99487e346b'),
+    reason: 'change-password',
     expireAt: new Date()
   },
   {
-    _id: ObjectID.createFromTime(115),
-    reason: 'Manually invalidated',
+    _id: new ObjectID('c80580b13473ed866aaccaa9'),
+    reason: 'invalidated',
     expireAt: new Date(new Date().getTime() + TOKEN_TTL_SECONDS * 1000)
   }
 ];
