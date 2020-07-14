@@ -7,11 +7,9 @@ const {
 
 const { initDb } = require('../utils/init-db');
 const jwt = require('jsonwebtoken');
-const { connect, disconnect, getDocument } = require('../lib/storage');
 const { REVOKED_TOKENS_COLLECTION } = require('../lib/revokedTokens');
 const { validatePassword, hashPassword } = require('../lib/hashing');
-
-const dbName = 'test_auth';
+const DataStore = require('../lib/datastore');
 
 test('password validation', () => {
   const pwd = 'testpassword';
@@ -38,9 +36,11 @@ describe('Password handling', () => {
 
 describe('Token handling', () => {
   let db;
+  let datastore;
 
   beforeAll(async () => {
-    db = await connect(dbName);
+    datastore = new DataStore(global.__MONGO_URI__);
+    db = await datastore.connect(global.__MONGO_DB_NAME__);
     await db.dropDatabase();
   });
 
@@ -49,22 +49,31 @@ describe('Token handling', () => {
   });
 
   afterEach(async () => {
-    await db.dropDatabase();
+    await datastore.clear();
   });
 
   afterAll(async () => {
-    await disconnect();
+    await datastore.disconnect();
   });
+
+  function mockRequest (tokenData) {
+    return {
+      app: {
+        get: jest.fn(value => { if (value === 'datastore') return datastore; })
+      },
+      user: tokenData
+    };
+  }
 
   test('token revoke insert', async () => {
     const token = await generateAccessToken();
     const payload = jwt.decode(token);
 
     return expect(
-      revokeToken(payload, 'test-reason')
+      revokeToken(mockRequest(payload), 'test-reason')
         .then((result) => {
           expect(result).toBe(true);
-          return getDocument(REVOKED_TOKENS_COLLECTION, payload.jti);
+          return datastore.get(REVOKED_TOKENS_COLLECTION, payload.jti);
         })
     ).resolves.not.toBeNull();
   });
@@ -75,7 +84,7 @@ describe('Token handling', () => {
     };
 
     return expect(
-      revokeToken(missingJtiToken, 'test-reason')
+      revokeToken(mockRequest(missingJtiToken), 'test-reason')
     ).rejects.toThrow('Missing JTI identified');
   });
 
@@ -85,9 +94,9 @@ describe('Token handling', () => {
 
     clearRevokedTokenCache();
 
-    return revokeToken(payload, 'test-reason')
+    return revokeToken(mockRequest(payload), 'test-reason')
       .then(() => {
-        return isTokenRevoked(payload.jti);
+        return isTokenRevoked(mockRequest(payload));
       })
       .then((isRevoked) => {
         return expect(isRevoked).toBe(true);

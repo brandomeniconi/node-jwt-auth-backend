@@ -9,7 +9,7 @@
     "dev": "nodemon ./bin/www",
     "lint": "semistandard",
     "fix": "semistandard --fix",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest --runInBand"
   },
   "keywords": [
     "nodejs",
@@ -28,6 +28,7 @@
     "mongodb": "^3.5.9"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^1.1.4",
     "jest": "^26.1.0",
     "nodemon": "^2.0.4",
     "semistandard": "^14.2.2",
