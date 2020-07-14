@@ -2,6 +2,8 @@
 
 This is a sample application to showcase a JWT persistent authentication.
 
+![Node.js CI](https://github.com/brandomeniconi/node-jwt-auth-backend/workflows/Node.js%20CI/badge.svg)
+
 ## Development 
 
 This project comes with a pre-built dev environment based on docker containers.
