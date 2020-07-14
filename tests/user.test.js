@@ -149,7 +149,6 @@ describe('Test user model functions', () => {
   });
 
   it('should validate fields schema', async () => {
-    const userStore = new UserStore(datastore);
     const mockUser = Object.assign({ password: 'testuser' }, mockUsers[1]);
     delete mockUser.passwordHash;
 
