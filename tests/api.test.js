@@ -1,33 +1,34 @@
 const { initDb } = require('../utils/init-db');
 
-const { connect, disconnect, getCollection } = require('../lib/storage');
+const DataStore = require('../lib/datastore');
 const { USER_COLLECTION } = require('../lib/user');
 
 const mockUsers = require('./mocks/users');
-const dbName = 'test_api';
 
 const request = require('supertest');
 const app = require('../app');
 
 describe('Check APIs', () => {
   let db;
+  let datastore;
 
   beforeAll(async () => {
-    db = await connect(dbName);
-    await db.dropDatabase();
+    datastore = new DataStore(global.__MONGO_URI__);
+    db = await datastore.connect(global.__MONGO_DB_NAME__);
+    app.set('datastore', datastore);
   });
 
   beforeEach(async () => {
     await initDb(db);
-    await getCollection(USER_COLLECTION).insertMany(mockUsers);
+    await datastore.getCollection(USER_COLLECTION).insertMany(mockUsers);
   });
 
   afterEach(async () => {
-    await db.dropDatabase();
+    await datastore.clear();
   });
 
   afterAll(async () => {
-    await disconnect();
+    await datastore.disconnect();
   });
 
   function signIn (credentials = { username: 'testuser', password: 'testpassword' }) {

@@ -5,13 +5,14 @@ var express = require('express');
 var router = express.Router();
 
 const { generateAccessToken, authenticateToken, revokeToken } = require('../lib/authentication');
-const { validateUser, createUserSession, findUser, insertUser, updateUser, findByUsername } = require('../lib/user');
+const { UserStore } = require('../lib/user');
 const { validatePassword } = require('../lib/hashing');
 
 /**
  * Authenticate the user and return the JWT token
  */
 router.post('/signin', async (req, res, next) => {
+  const userStore = new UserStore(req.app.get('datastore'));
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -19,7 +20,7 @@ router.post('/signin', async (req, res, next) => {
     return;
   }
 
-  const userData = await findByUsername(username);
+  const userData = await userStore.findByUsername(username);
 
   if (userData === null) {
     res.status(401).json({ error: 'invalid_credentials', message: 'Your username/password is not valid' });
@@ -34,7 +35,7 @@ router.post('/signin', async (req, res, next) => {
   }
 
   try {
-    const tokenPayload = createUserSession(userData);
+    const tokenPayload = UserStore.createSession(userData);
     const token = generateAccessToken(tokenPayload);
     res.json({ token });
   } catch (err) {
@@ -48,9 +49,10 @@ router.post('/signin', async (req, res, next) => {
  */
 router.post('/signup', async (req, res, next) => {
   const requestData = req.body;
+  const userStore = new UserStore(req.app.get('datastore'));
 
   try {
-    validateUser(requestData);
+    UserStore.validateUser(requestData);
   } catch (err) {
     console.warn('USER LOGIN FAILED', err.message);
     return res.status(400).json({ error: 'validation_error', message: err.message, fields: err.fields });
@@ -59,9 +61,9 @@ router.post('/signup', async (req, res, next) => {
   const tokenPayload = {};
 
   try {
-    const response = await insertUser(requestData);
-    const userData = await findUser(response.insertedId);
-    Object.assign(tokenPayload, createUserSession(userData));
+    const response = await userStore.insert(requestData);
+    const userData = await userStore.get(response.insertedId);
+    Object.assign(tokenPayload, UserStore.createSession(userData));
   } catch (err) {
     console.error('CANNOT INSER USER', err.code, err.message);
 
@@ -91,13 +93,14 @@ router.post('/signup', async (req, res, next) => {
 router.post('/change-password', authenticateToken, async (req, res) => {
   const userId = req.user.sub;
   const { password, previousPassword } = req.body;
+  const userStore = new UserStore(req.app.get('datastore'));
 
   if (!password || !previousPassword) {
     return res.status(400).json({ error: 'invalid_arguments', message: 'You must specify previous and new password' });
   }
 
   // Validate old password
-  const userData = await findUser(userId);
+  const userData = await userStore.get(userId);
 
   if (userData === null) {
     return res.status(401).json({ error: 'invalid_credentials', message: 'Your username/password is not valid' });
@@ -109,11 +112,11 @@ router.post('/change-password', authenticateToken, async (req, res) => {
     return res.status(403).json({ error: 'invalid_credentials', message: 'Your old password is not valid' });
   }
 
-  return updateUser(userId, { password })
-    .then(() => revokeToken(req.user, 'logout'))
-    .then(() => findUser(userId))
+  return userStore.update(userId, { password })
+    .then(() => revokeToken(req, 'logout'))
+    .then(() => userStore.get(userId))
     .then((userData) => {
-      const tokenPayload = createUserSession(userData);
+      const tokenPayload = UserStore.createSession(userData);
       const token = generateAccessToken(tokenPayload);
       res.status(200).send({ token });
     })
@@ -127,9 +130,7 @@ router.post('/change-password', authenticateToken, async (req, res) => {
  * Password change endopint
  */
 router.post('/logout', authenticateToken, (req, res) => {
-  const tokenData = req.user;
-
-  return revokeToken(tokenData, 'logout')
+  return revokeToken(req, 'logout')
     .then(() => {
       res.sendStatus(200);
     })

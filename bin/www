@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-const { connect } = require('../lib/storage');
+const DataStore = require('../lib/datastore');
 
 /**
  * Get port from environment and store in Express.
@@ -14,7 +14,9 @@ const { connect } = require('../lib/storage');
 var port = process.env.PORT || '3000';
 app.set('port', port);
 
-connect(process.env.MONGO_DB);
+const datastore = new DataStore(process.env.MONGO_URL);
+datastore.connect(process.env.MONGO_DB);
+app.set('datastore', datastore);
 
 /**
  * Server startup
