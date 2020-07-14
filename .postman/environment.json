@@ -1,0 +1,19 @@
+{
+	"id": "5d63bfc4-caff-4189-b81e-20c084025279",
+	"name": "JWT Demo",
+	"values": [
+		{
+			"key": "host",
+			"value": "http://localhost:3000",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2020-07-14T06:08:53.322Z",
+	"_postman_exported_using": "Postman/7.27.1"
+}
